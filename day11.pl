@@ -85,12 +85,12 @@ part1(InputFile, MonkeyBusiness) :-
   findall(_, (between(1, 20, _), do_round), _),
   monkey_business(MonkeyBusiness).
 
-% Multiply all modulos together to find common Mod
 mult_list([], X) :- X is 1.
 mult_list([H|T], X) :- mult_list(T, X2), X is X2 * H.
 
 part2(InputFile, MonkeyBusiness) :-
   init(InputFile), assertz(part(2)), retractall(common_mod(_)),
-  findall(X, throw_test(_,X,_,_), Mods), mult_list(Mods, Mod),
-  assertz(common_mod(Mod)), findall(_, (between(1, 10000, _), do_round), _),
+  % Multiply all modulos together to find common Mod
+  findall(X, throw_test(_,X,_,_), Mods), mult_list(Mods, Mod), assertz(common_mod(Mod)),
+  findall(_, (between(1, 10000, _), do_round), _),
   monkey_business(MonkeyBusiness).
