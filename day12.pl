@@ -25,7 +25,7 @@ init(InputFile) :- retractall(node(_,_)),
   findall(_, load_facts(Rows), _).
 
 euclidean([X,Y], [X2,Y2], Out) :- Out is sqrt((X-X2)^2 + (Y-Y2)^2).
-expand_path(EndXY, [XY|Path], List) :- length([XY|Path], L),
+expand_path(EndXY, [XY|Path], Visited, List) :- length([XY|Path], L),
   findall(
     P-[Next,XY|Path],
     (edge(XY, Next), \+ memberchk(Next, Path), euclidean(Next, EndXY, E), P is E+L),
@@ -33,12 +33,12 @@ expand_path(EndXY, [XY|Path], List) :- length([XY|Path], L),
   ).
 
 % FIXME: Heap = open set (node to explore), cameFrom = current min preceding node
-search(Heap0, EndXY, Path) :- get_from_heap(Heap0, _, MinPath, Heap),
+search(Heap0, EndXY, Visited, Path) :- get_from_heap(Heap0, _, MinPath, Heap),
   % writeln(MinPath),
   ( nth0(0, MinPath, EndXY)
     -> Path = MinPath
     ; (
-      expand_path(EndXY, MinPath, PathList),
+      expand_path(EndXY, MinPath, Visited, PathList),
       list_to_heap(PathList, PathHeap),
       merge_heaps(Heap, PathHeap, NextHeap),
       search(NextHeap, EndXY, Path)
@@ -49,7 +49,7 @@ search(Heap0, EndXY, Path) :- get_from_heap(Heap0, _, MinPath, Heap),
 shortest_path(Start, End, Path) :- node(StartXY, Start), node(EndXY, End),
   expand_path(EndXY, [StartXY], List0),
   list_to_heap(List0, Heap0),
-  search(Heap0, EndXY, Path).
+  search(Heap0, EndXY, [], Path).
 
 part1(InputFile, Steps) :- init(InputFile), shortest_path(0'S, 0'E, Path),
   length(Path, Length), Steps is Length - 1.
